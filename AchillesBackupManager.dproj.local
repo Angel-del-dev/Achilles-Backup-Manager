@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2025/01/24 22:46:54.000.632,=C:\Users\angel\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2025/01/24 22:49:27.000.439,C:\Users\angel\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\angel\Documents\Embarcadero\Studio\Projects\AchillesBackupManager.dproj</Transaction>
+    <Transaction>2025/01/24 22:50:07.000.037,C:\Users\angel\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\angel\Desktop\dev\proyect\backup_system\GUI\BackupManager.pas</Transaction>
+    <Transaction>2025/01/24 22:50:07.000.037,C:\Users\angel\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\angel\Desktop\dev\proyect\backup_system\GUI\BackupManager.dfm</Transaction>
+    <Transaction>2025/01/24 22:50:23.000.359,C:\Users\angel\Documents\Embarcadero\Studio\Projects\AchillesBackupManager.dproj=C:\Users\angel\Desktop\dev\proyect\backup_system\GUI\AchillesBackupManager.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
