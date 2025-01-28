@@ -95,6 +95,15 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = DefaultCheckboxClick
       end
+      object BtnAddProfile: TButton
+        Left = 6
+        Top = 232
+        Width = 163
+        Height = 25
+        Caption = 'Add profile'
+        TabOrder = 2
+        OnClick = BtnAddProfileClick
+      end
     end
     object Panel3: TPanel
       Left = 176
@@ -103,6 +112,68 @@ object Form1: TForm1
       Height = 379
       Align = alRight
       TabOrder = 1
+      object PanelCreateProfile: TPanel
+        Left = 32
+        Top = 92
+        Width = 377
+        Height = 193
+        TabOrder = 0
+        Visible = False
+        object Label4: TLabel
+          Left = 24
+          Top = 16
+          Width = 35
+          Height = 15
+          Caption = 'Name:'
+        end
+        object BtnCancelProfileCreation: TButton
+          Left = 208
+          Top = 160
+          Width = 75
+          Height = 25
+          Caption = 'Cancel'
+          TabOrder = 0
+          OnClick = BtnCancelProfileCreationClick
+        end
+        object BtnConfirmProfileCreation: TButton
+          Left = 289
+          Top = 160
+          Width = 75
+          Height = 25
+          Caption = 'Confirm'
+          TabOrder = 1
+          OnClick = BtnConfirmProfileCreationClick
+        end
+        object edNewProfileName: TEdit
+          Left = 24
+          Top = 37
+          Width = 121
+          Height = 23
+          Hint = 'Name'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          TextHint = 'Name of the profile'
+        end
+        object btnChooseOriginPath: TButton
+          Left = 24
+          Top = 80
+          Width = 337
+          Height = 25
+          Caption = 'Origin path'
+          TabOrder = 3
+          OnClick = btnChooseOriginPathClick
+        end
+        object btnTargetPath: TButton
+          Left = 24
+          Top = 111
+          Width = 337
+          Height = 25
+          Caption = 'Target path'
+          TabOrder = 4
+          OnClick = btnTargetPathClick
+        end
+      end
     end
   end
   object Connection: TFDConnection

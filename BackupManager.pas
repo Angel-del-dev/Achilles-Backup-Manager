@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.FileCtrl, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
@@ -24,20 +24,37 @@ type
     Label3: TLabel;
     lblOrigin: TLabel;
     lblTarget: TLabel;
+    BtnAddProfile: TButton;
+    PanelCreateProfile: TPanel;
+    BtnCancelProfileCreation: TButton;
+    BtnConfirmProfileCreation: TButton;
+    Label4: TLabel;
+    edNewProfileName: TEdit;
+    btnChooseOriginPath: TButton;
+    btnTargetPath: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ProfileSelectorSelect(Sender: TObject);
     procedure DefaultCheckboxClick(Sender: TObject);
+    procedure BtnAddProfileClick(Sender: TObject);
+    procedure BtnCancelProfileCreationClick(Sender: TObject);
+    procedure btnChooseOriginPathClick(Sender: TObject);
+    procedure btnTargetPathClick(Sender: TObject);
+    procedure BtnConfirmProfileCreationClick(Sender: TObject);
   private
     { Private declarations }
     function Query(QueryString: String):TFDQuery;
     procedure Load;
     procedure FillInfoSelected;
+    procedure ClearProfileCreation;
   public
     { Public declarations }
   end;
 
 var
   Form1: TForm1;
+  OriginPath,
+  TargetPath: String;
+
 
 implementation
 
@@ -58,6 +75,7 @@ procedure TForm1.Load();
   var Profiles: TFDQuery;
     I : Integer;
 begin
+    ProfileSelector.Items.Clear;
     { Load profiles }
 
     I := 0;
@@ -95,10 +113,76 @@ begin
   QueryObj.Free;
 end;
 
+procedure TForm1.BtnAddProfileClick(Sender: TObject);
+begin
+  PanelCreateProfile.Visible := True;
+end;
+
+procedure TForm1.ClearProfileCreation;
+begin
+  PanelCreateProfile.Visible := False;
+  btnChooseOriginPath.Caption := 'Origin path';
+  btnTargetPath.Caption := 'Target path';
+  OriginPath := '';
+  TargetPath := '';
+  edNewProfileName.Text := '';
+end;
+
+procedure TForm1.BtnCancelProfileCreationClick(Sender: TObject);
+begin
+  ClearProfileCreation;
+end;
+
+procedure TForm1.btnChooseOriginPathClick(Sender: TObject);
+begin
+  if SelectDirectory('Select a folder', '', OriginPath) then
+    btnChooseOriginPath.Caption := OriginPath;
+end;
+
+procedure TForm1.BtnConfirmProfileCreationClick(Sender: TObject);
+  var
+    QueryObj : TFDQuery;
+    NameExists: Boolean;
+begin
+  if (edNewProfileName.Text = '') or (OriginPath = '') or (TargetPath = '') then
+  begin
+    ShowMessage('There is information missing');
+    exit;
+  end;
+
+  QueryObj := Query('SELECT COUNT(1) AS AMOUNTNAME FROM CONFIGURATION WHERE NAME = :NAME');
+  QueryObj.Params.ParamByName('NAME').asString := edNewProfileName.Text;
+  QueryObj.Open;
+  NameExists := QueryObj.FieldByName('AMOUNTNAME').AsInteger > 0;
+  QueryObj.Close;
+  QueryObj.Free;
+
+  if NameExists then
+  begin
+    ShowMessage('The profile already exists');
+    exit;
+  end;
+
+  QueryObj := Query('INSERT INTO CONFIGURATION(NAME, ORIGINPATH, TARGETPATH, ACTIVE) VALUES(:NAME, :ORIGINPATH, :TARGETPATH, FALSE)');
+  QueryObj.Params.ParamByName('NAME').asString := edNewProfileName.Text;
+  QueryObj.Params.ParamByName('ORIGINPATH').asString := OriginPath;
+  QueryObj.Params.ParamByName('TARGETPATH').asString := TargetPath;
+  QueryObj.ExecSQL;
+  QueryObj.Free;
+  ClearProfileCreation;
+  Load;
+end;
+
+procedure TForm1.btnTargetPathClick(Sender: TObject);
+begin
+   if SelectDirectory('Select a folder', '', TargetPath) then
+    btnTargetPath.Caption := TargetPath;
+end;
+
 procedure TForm1.DefaultCheckboxClick(Sender: TObject);
   var QueryObj: TFDQuery;
 begin
-  QueryObj := Query('UPDATE CONFIGURATION SET ACTIVE = FALSE');
+  QueryObj := Query('UPDATE CONFIGURATION SET ACTIVE = FALSE WHERE ACTIVE = TRUE');
   QueryObj.ExecSQL;
   QueryObj.Free;
 
@@ -112,6 +196,9 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
   var StringList: TStringList;
 begin
+  OriginPath := '';
+  TargetPath := '';
+
   Connection := TFDConnection.Create(nil);
 
   StringList := TStringList.Create;
