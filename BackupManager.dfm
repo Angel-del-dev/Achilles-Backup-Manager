@@ -26,11 +26,13 @@ object Form1: TForm1
     TabOrder = 0
     object Panel2: TPanel
       Left = 1
-      Top = 1
+      Top = 25
       Width = 177
-      Height = 379
+      Height = 355
       Align = alLeft
       TabOrder = 0
+      ExplicitTop = 1
+      ExplicitHeight = 379
       object Label1: TLabel
         Left = 8
         Top = 11
@@ -77,6 +79,7 @@ object Form1: TForm1
         Width = 46
         Height = 15
         Caption = 'lblTarget'
+        WordWrap = True
       end
       object ProfileSelector: TComboBox
         Left = 8
@@ -95,23 +98,16 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = DefaultCheckboxClick
       end
-      object BtnAddProfile: TButton
-        Left = 6
-        Top = 232
-        Width = 163
-        Height = 25
-        Caption = 'Add profile'
-        TabOrder = 2
-        OnClick = BtnAddProfileClick
-      end
     end
     object Panel3: TPanel
       Left = 176
-      Top = 1
+      Top = 25
       Width = 447
-      Height = 379
+      Height = 355
       Align = alRight
       TabOrder = 1
+      ExplicitTop = 1
+      ExplicitHeight = 379
       object PanelCreateProfile: TPanel
         Left = 32
         Top = 92
@@ -174,6 +170,57 @@ object Form1: TForm1
           OnClick = btnTargetPathClick
         end
       end
+      object PRemove: TPanel
+        Left = 72
+        Top = 129
+        Width = 313
+        Height = 88
+        TabOrder = 1
+        Visible = False
+        object lblRemove: TLabel
+          Left = 40
+          Top = 29
+          Width = 239
+          Height = 15
+          Caption = 'Would you like to remove the current profile?'
+        end
+        object BtnCancelRemove: TButton
+          Left = 147
+          Top = 55
+          Width = 75
+          Height = 25
+          Caption = 'Cancel'
+          TabOrder = 0
+          OnClick = BtnCancelRemoveClick
+        end
+        object BtnConfirmRemove: TButton
+          Left = 232
+          Top = 55
+          Width = 75
+          Height = 25
+          Caption = 'Confirm'
+          TabOrder = 1
+          OnClick = BtnConfirmRemoveClick
+        end
+      end
+    end
+    object Panel4: TPanel
+      Left = 1
+      Top = 1
+      Width = 622
+      Height = 24
+      Align = alTop
+      TabOrder = 2
+      object BtnActionsMenu: TButton
+        Left = 1
+        Top = 1
+        Width = 53
+        Height = 22
+        Align = alLeft
+        Caption = 'Actions'
+        TabOrder = 0
+        OnClick = BtnActionsMenuClick
+      end
     end
   end
   object Connection: TFDConnection
@@ -182,5 +229,20 @@ object Form1: TForm1
     LoginPrompt = False
     Left = 30
     Top = 389
+  end
+  object PopupActionsMenu: TPopupMenu
+    Left = 577
+    Top = 33
+    object Profile1: TMenuItem
+      Caption = 'Profile'
+      object Create1: TMenuItem
+        Caption = 'Create'
+        OnClick = BtnAddProfileClick
+      end
+      object Removecurrent1: TMenuItem
+        Caption = 'Remove current'
+        OnClick = Removecurrent1Click
+      end
+    end
   end
 end

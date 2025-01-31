@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, Data.DB,
-  FireDAC.Comp.Client, FireDac.Dapt, Vcl.ExtCtrls, Vcl.StdCtrls;
+  FireDAC.Comp.Client, FireDac.Dapt, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Menus;
 
 type
   TForm1 = class(TForm)
@@ -24,7 +24,6 @@ type
     Label3: TLabel;
     lblOrigin: TLabel;
     lblTarget: TLabel;
-    BtnAddProfile: TButton;
     PanelCreateProfile: TPanel;
     BtnCancelProfileCreation: TButton;
     BtnConfirmProfileCreation: TButton;
@@ -32,6 +31,16 @@ type
     edNewProfileName: TEdit;
     btnChooseOriginPath: TButton;
     btnTargetPath: TButton;
+    Panel4: TPanel;
+    PopupActionsMenu: TPopupMenu;
+    Profile1: TMenuItem;
+    Create1: TMenuItem;
+    Removecurrent1: TMenuItem;
+    BtnActionsMenu: TButton;
+    PRemove: TPanel;
+    lblRemove: TLabel;
+    BtnCancelRemove: TButton;
+    BtnConfirmRemove: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ProfileSelectorSelect(Sender: TObject);
     procedure DefaultCheckboxClick(Sender: TObject);
@@ -40,6 +49,10 @@ type
     procedure btnChooseOriginPathClick(Sender: TObject);
     procedure btnTargetPathClick(Sender: TObject);
     procedure BtnConfirmProfileCreationClick(Sender: TObject);
+    procedure BtnActionsMenuClick(Sender: TObject);
+    procedure Removecurrent1Click(Sender: TObject);
+    procedure BtnCancelRemoveClick(Sender: TObject);
+    procedure BtnConfirmRemoveClick(Sender: TObject);
   private
     { Private declarations }
     function Query(QueryString: String):TFDQuery;
@@ -69,6 +82,17 @@ begin
 
    QueryObj.SQL.Text := QueryString;
    result := QueryObj;
+end;
+
+procedure TForm1.Removecurrent1Click(Sender: TObject);
+begin
+  if ProfileSelector.Text = '' then
+  begin
+    ShowMessage('A profile must be selected');
+    exit;
+  end;
+
+  PRemove.Visible := True;
 end;
 
 procedure TForm1.Load();
@@ -133,6 +157,11 @@ begin
   ClearProfileCreation;
 end;
 
+procedure TForm1.BtnCancelRemoveClick(Sender: TObject);
+begin
+   PRemove.Visible := False;
+end;
+
 procedure TForm1.btnChooseOriginPathClick(Sender: TObject);
 begin
   if SelectDirectory('Select a folder', '', OriginPath) then
@@ -173,21 +202,54 @@ begin
   Load;
 end;
 
+procedure TForm1.BtnConfirmRemoveClick(Sender: TObject);
+  var
+    QueryObj : TFDQuery;
+begin
+
+  QueryObj := Query('DELETE FROM CONFIGURATION WHERE NAME = :NAME');
+  QueryObj.Params.ParamByName('NAME').asString := ProfileSelector.Text;
+  QueryObj.ExecSQL;
+  QueryObj.Free;
+
+  ProfileSelector.Text := '';
+  PRemove.Visible := False;
+  Load;
+end;
+
 procedure TForm1.btnTargetPathClick(Sender: TObject);
 begin
    if SelectDirectory('Select a folder', '', TargetPath) then
     btnTargetPath.Caption := TargetPath;
 end;
 
+procedure TForm1.BtnActionsMenuClick(Sender: TObject);
+  var
+    Pointer: TPoint;
+begin
+  GetCursorPos(Pointer);
+  PopupActionsMenu.Popup(Pointer.X, Pointer.Y);
+end;
+
 procedure TForm1.DefaultCheckboxClick(Sender: TObject);
   var QueryObj: TFDQuery;
 begin
+  if (ProfileSelector.Text = '') and (DefaultCheckbox.Checked) then
+  begin
+    ShowMessage('A profile must be selected');
+    DefaultCheckbox.Checked := False;
+    exit;
+  end;
+
   QueryObj := Query('UPDATE CONFIGURATION SET ACTIVE = FALSE WHERE ACTIVE = TRUE');
   QueryObj.ExecSQL;
   QueryObj.Free;
 
+  if not DefaultCheckbox.Checked then
+    exit;
+
   QueryObj := Query('UPDATE CONFIGURATION SET ACTIVE = :ACTIVE WHERE NAME = :NAME');
-  QueryObj.Params.ParamByName('ACTIVE').asBoolean := DefaultCheckbox.Checked;
+  QueryObj.Params.ParamByName('ACTIVE').asBoolean := True;
   QueryObj.Params.ParamByName('NAME').asString := ProfileSelector.Items[ProfileSelector.ItemIndex];
   QueryObj.ExecSQL;
   QueryObj.Free;
