@@ -3,13 +3,14 @@ unit BackupManager;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, System.IOUtils, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.FileCtrl, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, Data.DB,
-  FireDAC.Comp.Client, FireDac.Dapt, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Menus;
+  FireDAC.Comp.Client, FireDac.Dapt, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Menus,
+  Vcl.Buttons;
 
 type
   TForm1 = class(TForm)
@@ -36,11 +37,13 @@ type
     Profile1: TMenuItem;
     Create1: TMenuItem;
     Removecurrent1: TMenuItem;
-    BtnActionsMenu: TButton;
     PRemove: TPanel;
     lblRemove: TLabel;
     BtnCancelRemove: TButton;
     BtnConfirmRemove: TButton;
+    BtnActions: TSpeedButton;
+    sbBackupList: TScrollBox;
+    lbBackups: TListBox;
     procedure FormCreate(Sender: TObject);
     procedure ProfileSelectorSelect(Sender: TObject);
     procedure DefaultCheckboxClick(Sender: TObject);
@@ -59,6 +62,8 @@ type
     procedure Load;
     procedure FillInfoSelected;
     procedure ClearProfileCreation;
+    procedure DrawBackups(GivenRoute: String);
+    function GetLastSeparatedByDelimiter(Delimiter: Char; Text: String):String;
   public
     { Public declarations }
   end;
@@ -93,6 +98,36 @@ begin
   end;
 
   PRemove.Visible := True;
+end;
+
+function TForm1.GetLastSeparatedByDelimiter(Delimiter: Char; Text: String):String;
+  var
+    StringList: TStringList;
+begin
+     StringList := TStringList.Create;
+     StringList.Delimiter := Delimiter;
+     StringList.StrictDelimiter := True;
+     StringList.DelimitedText := Text;
+
+     result := StringList.Strings[StringList.Count - 1];
+     StringList.Free;
+end;
+
+procedure TForm1.DrawBackups(GivenRoute: String);
+  var
+    FileList: TArray<String>;
+    Route: String;
+begin
+     lbBackups.Items.Clear;
+     if ProfileSelector.Text = '' then
+      exit;
+
+     FileList := TDirectory.GetFiles(GivenRoute, '*.zip', TSearchOption.soAllDirectories);
+     for Route in FileList do
+     begin
+        lbBackups.Items.Add(GetLastSeparatedByDelimiter('\', Route));
+     end;
+
 end;
 
 procedure TForm1.Load();
@@ -133,6 +168,7 @@ begin
   DefaultCheckbox.Checked := QueryObj.FieldByName('ACTIVE').asBoolean;
   lblOrigin.Caption := QueryObj.FieldByName('ORIGINPATH').asString;
   lblTarget.Caption := QueryObj.FieldByName('TARGETPATH').asString;
+  DrawBackups(QueryObj.FieldByName('TARGETPATH').asString);
   QueryObj.Close;
   QueryObj.Free;
 end;

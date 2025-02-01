@@ -31,8 +31,6 @@ object Form1: TForm1
       Height = 355
       Align = alLeft
       TabOrder = 0
-      ExplicitTop = 1
-      ExplicitHeight = 379
       object Label1: TLabel
         Left = 8
         Top = 11
@@ -106,8 +104,31 @@ object Form1: TForm1
       Height = 355
       Align = alRight
       TabOrder = 1
-      ExplicitTop = 1
-      ExplicitHeight = 379
+      object sbBackupList: TScrollBox
+        Left = 1
+        Top = 1
+        Width = 445
+        Height = 353
+        Align = alClient
+        TabOrder = 2
+        ExplicitLeft = 48
+        ExplicitTop = 48
+        ExplicitWidth = 185
+        ExplicitHeight = 41
+        object lbBackups: TListBox
+          Left = 0
+          Top = 0
+          Width = 441
+          Height = 349
+          Align = alClient
+          ItemHeight = 15
+          TabOrder = 0
+          ExplicitLeft = 48
+          ExplicitTop = 32
+          ExplicitWidth = 121
+          ExplicitHeight = 97
+        end
+      end
       object PanelCreateProfile: TPanel
         Left = 32
         Top = 92
@@ -194,7 +215,7 @@ object Form1: TForm1
           OnClick = BtnCancelRemoveClick
         end
         object BtnConfirmRemove: TButton
-          Left = 232
+          Left = 227
           Top = 55
           Width = 75
           Height = 25
@@ -211,15 +232,17 @@ object Form1: TForm1
       Height = 24
       Align = alTop
       TabOrder = 2
-      object BtnActionsMenu: TButton
+      object BtnActions: TSpeedButton
         Left = 1
         Top = 1
-        Width = 53
+        Width = 57
         Height = 22
         Align = alLeft
         Caption = 'Actions'
-        TabOrder = 0
+        Flat = True
         OnClick = BtnActionsMenuClick
+        ExplicitLeft = 176
+        ExplicitTop = 8
       end
     end
   end
