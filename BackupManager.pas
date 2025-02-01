@@ -242,6 +242,9 @@ end;
 procedure TForm1.FillInfoSelected();
   var QueryObj: TFDQuery;
 begin
+  if ProfileSelector.Text = '' then
+    exit;
+
   QueryObj := Query('SELECT ACTIVE, ORIGINPATH, TARGETPATH FROM CONFIGURATION WHERE NAME = :NAME');
   QueryObj.Params.ParamByName('NAME').asString := ProfileSelector.Items[ProfileSelector.ItemIndex];
   QueryObj.Open;
