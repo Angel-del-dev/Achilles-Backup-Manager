@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs,
   FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait, Data.DB,
   FireDAC.Comp.Client, FireDac.Dapt, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Menus,
-  Vcl.Buttons;
+  Vcl.Buttons, ShellApi;
 
 type
   TForm1 = class(TForm)
@@ -44,6 +44,9 @@ type
     BtnActions: TSpeedButton;
     sbBackupList: TScrollBox;
     lbBackups: TListBox;
+    Manager1: TMenuItem;
+    Quickbackup1: TMenuItem;
+    Restorecurrent1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure ProfileSelectorSelect(Sender: TObject);
     procedure DefaultCheckboxClick(Sender: TObject);
@@ -56,6 +59,7 @@ type
     procedure Removecurrent1Click(Sender: TObject);
     procedure BtnCancelRemoveClick(Sender: TObject);
     procedure BtnConfirmRemoveClick(Sender: TObject);
+    procedure Quickbackup1Click(Sender: TObject);
   private
     { Private declarations }
     function Query(QueryString: String):TFDQuery;
@@ -64,6 +68,7 @@ type
     procedure ClearProfileCreation;
     procedure DrawBackups(GivenRoute: String);
     function GetLastSeparatedByDelimiter(Delimiter: Char; Text: String):String;
+    procedure ShellExecuteWait(Command: String);
   public
     { Public declarations }
   end;
@@ -72,11 +77,30 @@ var
   Form1: TForm1;
   OriginPath,
   TargetPath: String;
+  StringList: TStringList;
 
 
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.ShellExecuteWait(Command: String);
+    var
+      StartupInfo: TStartupInfo;
+      ProcessInfo: TProcessInformation;
+begin
+   ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
+   StartupInfo.cb := SizeOf(StartupInfo);
+
+   {
+    Use /c to automatically close the cmd window after it has finished
+    Use /k to keep the window after finishing
+   }
+   CreateProcess(nil, PChar('cmd.exe /c ' + Command), nil, nil, False, CREATE_NEW_CONSOLE or NORMAL_PRIORITY_CLASS, nil, nil, StartupInfo, ProcessInfo);
+   WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+   CloseHandle(ProcessInfo.hProcess);
+   CloseHandle(ProcessInfo.hThread);
+end;
 
 function TForm1.Query(QueryString: String):TFDQuery;
   var
@@ -87,6 +111,29 @@ begin
 
    QueryObj.SQL.Text := QueryString;
    result := QueryObj;
+end;
+
+procedure TForm1.Quickbackup1Click(Sender: TObject);
+  var
+    QueryObj : TFDQuery;
+begin
+  if ProfileSelector.Text = '' then
+  begin
+    ShowMessage('A profile must be selected');
+    exit;
+  end;
+
+  QueryObj := Query('SELECT ORIGINPATH, TARGETPATH FROM CONFIGURATION WHERE NAME = :NAME');
+  QueryObj.Params.ParamByName('NAME').asString := ProfileSelector.Text;
+  QueryObj.Open;
+
+  ShellExecuteWait(StringList.DelimitedText+'\compression.exe -operation backup'+
+    Format(' -o %s\', [QueryObj.FieldByName('ORIGINPATH').asString])+
+    Format(' -t %s\', [QueryObj.FieldByName('TARGETPATH').asString])
+  );
+  QueryObj.Close;
+  QueryObj.Free;
+  Load;
 end;
 
 procedure TForm1.Removecurrent1Click(Sender: TObject);
@@ -127,7 +174,6 @@ begin
      begin
         lbBackups.Items.Add(GetLastSeparatedByDelimiter('\', Route));
      end;
-
 end;
 
 procedure TForm1.Load();
@@ -292,7 +338,6 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-  var StringList: TStringList;
 begin
   OriginPath := '';
   TargetPath := '';

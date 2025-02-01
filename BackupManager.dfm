@@ -111,10 +111,6 @@ object Form1: TForm1
         Height = 353
         Align = alClient
         TabOrder = 2
-        ExplicitLeft = 48
-        ExplicitTop = 48
-        ExplicitWidth = 185
-        ExplicitHeight = 41
         object lbBackups: TListBox
           Left = 0
           Top = 0
@@ -123,10 +119,6 @@ object Form1: TForm1
           Align = alClient
           ItemHeight = 15
           TabOrder = 0
-          ExplicitLeft = 48
-          ExplicitTop = 32
-          ExplicitWidth = 121
-          ExplicitHeight = 97
         end
       end
       object PanelCreateProfile: TPanel
@@ -265,6 +257,16 @@ object Form1: TForm1
       object Removecurrent1: TMenuItem
         Caption = 'Remove current'
         OnClick = Removecurrent1Click
+      end
+    end
+    object Manager1: TMenuItem
+      Caption = 'Manager'
+      object Quickbackup1: TMenuItem
+        Caption = 'Quick backup'
+        OnClick = Quickbackup1Click
+      end
+      object Restorecurrent1: TMenuItem
+        Caption = 'Restore current'
       end
     end
   end
