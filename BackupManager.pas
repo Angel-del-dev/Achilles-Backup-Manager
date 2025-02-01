@@ -60,6 +60,7 @@ type
     procedure BtnCancelRemoveClick(Sender: TObject);
     procedure BtnConfirmRemoveClick(Sender: TObject);
     procedure Quickbackup1Click(Sender: TObject);
+    procedure Restorecurrent1Click(Sender: TObject);
   private
     { Private declarations }
     function Query(QueryString: String):TFDQuery;
@@ -145,6 +146,39 @@ begin
   end;
 
   PRemove.Visible := True;
+end;
+
+procedure TForm1.Restorecurrent1Click(Sender: TObject);
+  var
+    QueryObj : TFDQuery;
+    RestoreRoute: String;
+begin
+  if ProfileSelector.Text = '' then
+  begin
+    ShowMessage('A profile must be selected');
+    exit;
+  end;
+
+  if lbBackups.ItemIndex < 0 then
+  begin
+    ShowMessage('A backup must be selected');
+    exit;
+  end;
+
+  if SelectDirectory('Select a folder', '', RestoreRoute) then
+  begin
+    QueryObj := Query('SELECT TARGETPATH FROM CONFIGURATION WHERE NAME = :NAME');
+    QueryObj.Params.ParamByName('NAME').asString := ProfileSelector.Text;
+    QueryObj.Open;
+
+    ShellExecuteWait(StringList.DelimitedText+'\compression.exe -operation restore'+
+      Format(' -o %s\%s', [QueryObj.FieldByName('TARGETPATH').asString, lbBackups.Items[lbBackups.ItemIndex]])+
+      Format(' -t %s\', [RestoreRoute])
+    );
+
+    QueryObj.Close;
+    QueryObj.Free;
+  end;
 end;
 
 function TForm1.GetLastSeparatedByDelimiter(Delimiter: Char; Text: String):String;

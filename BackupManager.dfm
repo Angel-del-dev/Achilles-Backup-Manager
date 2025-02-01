@@ -267,6 +267,7 @@ object Form1: TForm1
       end
       object Restorecurrent1: TMenuItem
         Caption = 'Restore current'
+        OnClick = Restorecurrent1Click
       end
     end
   end
